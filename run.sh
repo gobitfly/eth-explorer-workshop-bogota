@@ -78,8 +78,7 @@ fn_explore_epoch() {
 }
 
 fn_explore_block() {
-    echo "todo"
-    # $COMPOSE exec bigtable cbt
+    $COMPOSE exec bigtable cbt --project explorer --instance bigtable:9000 read blocks start="11155111" count="10" format-file="cbt-definitions.yml"
 }
 
 fn_explore_address() {

@@ -106,5 +106,7 @@ services:
     volumes:
       - ./init-bigtable.sh:/init-bigtable.sh
       - ./docker-volumes/bigtable:/data
+      - ./cbt-definitions.yml:/cbt-definitions.yml
+      - ./eth1.proto:/eth1.proto
     environment:
       - BIGTABLE_EMULATOR_HOST=bigtable:9000

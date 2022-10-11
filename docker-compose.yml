@@ -21,7 +21,7 @@ services:
     image: guybrush/explorer-workshop-bogota
     restart: unless-stopped
     command: 
-      - /v/_gitignore/eth2-beaconchain-explorer/bin/eth1indexer
+      - eth1indexer
       - -bigtable.project=explorer
       - -bigtable.instance=bigtable:9000
       - -network=sepolia

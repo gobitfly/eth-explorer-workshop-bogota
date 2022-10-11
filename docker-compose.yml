@@ -2,7 +2,7 @@ version: '3'
 services:
   ################ explorer
   exporter:
-    image: guybrush/workshop-bogota
+    image: guybrush/explorer-workshop-bogota
     restart: unless-stopped
     command: 
       - explorer
@@ -18,7 +18,7 @@ services:
       - ETH1_ERIGON_ENDPOINT=http://$NODES_IP:8545
       - ETH1_GETH_ENDPOINT=http://$NODES_IP:8545
   eth1indexer:
-    image: guybrush/workshop-bogota
+    image: guybrush/explorer-workshop-bogota
     restart: unless-stopped
     command: 
       - /v/_gitignore/eth2-beaconchain-explorer/bin/eth1indexer
@@ -42,7 +42,7 @@ services:
     environment:
       - BIGTABLE_EMULATOR_HOST=bigtable:9000
   statistics:
-    image: guybrush/workshop-bogota
+    image: guybrush/explorer-workshop-bogota
     command: 
       - statistics
       - -config=/v/config.yml
@@ -52,7 +52,7 @@ services:
     environment:
       - INDEXER_ENABLED=false
   frontend-updater:
-    image: guybrush/workshop-bogota
+    image: guybrush/explorer-workshop-bogota
     command: 
       - frontend-data-updater
       - -config=/v/config.yml
@@ -63,7 +63,7 @@ services:
       - ./:/v
       - ./docker-volumes/explorer:/data
   frontend:
-    image: guybrush/workshop-bogota
+    image: guybrush/explorer-workshop-bogota
     restart: unless-stopped
     command: 
       - explorer
@@ -96,7 +96,7 @@ services:
       - ./docker-volumes/postgres:/var/lib/postgresql/data
       - ./tables.sql:/docker-entrypoint-initdb.d/init.sql
   bigtable:
-    image: guybrush/workshop-bogota
+    image: guybrush/explorer-workshop-bogota
     restart: unless-stopped
     command:
       - little_bigtable

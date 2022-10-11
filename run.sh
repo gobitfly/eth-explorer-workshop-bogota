@@ -1,11 +1,7 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-COMPOSE=docker-compose
-
-if ! [ -x "$(docker compose)" ]; then
-    COMPOSE="docker compose"
-fi
+COMPOSE="docker compose"
 
 cd $DIR
 

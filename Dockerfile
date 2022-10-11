@@ -15,5 +15,5 @@ COPY --from=build /src/little_bigtable/build/little_bigtable /usr/bin/little_big
 COPY --from=build /src/eth2-beaconchain-explorer/bin/explorer /usr/bin/explorer
 COPY --from=build /src/eth2-beaconchain-explorer/bin/eth1indexer /usr/bin/eth1indexer
 COPY --from=build /src/eth2-beaconchain-explorer/bin/frontend-data-updater /usr/bin/frontend-data-updater
-COPY --from=build /src/eth2-beaconchain-explorer/bin/statitics /usr/bin/statisitcs
+COPY --from=build /src/eth2-beaconchain-explorer/bin/statistics /usr/bin/statistics
 COPY --from=gcs /usr/bin/cbt /usr/bin/cbt

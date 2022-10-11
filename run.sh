@@ -20,6 +20,7 @@ fn_main() {
         case $1 in
             reset) shift; fn_reset "$@"; exit;;
             sql) shift; fn_sql "@"; exit;; 
+            bigtable) shift; fn_bigtable "@"; exit;; 
             init-dbs) shift; fn_init_dbs "$@"; exit;;
             start-eth1indexer) shift; fn_start_eth1indexer "$@"; exit;;
             start-exporter) shift; fn_start_exporter "$@"; exit;;
@@ -41,7 +42,13 @@ fn_reset() {
 }
 
 fn_sql() {
+    echo "use sql to explore postgres"
     $COMPOSE exec postgres psql -U postgres -d db
+}
+
+fn_bigtable() {
+    echo "use cbt to explore bigtable"
+    $COMPOSE exec bigtable bash
 }
 
 fn_init_dbs() {
@@ -76,10 +83,12 @@ fn_explore_epoch() {
 
 fn_explore_block() {
     echo "todo"
+    # $COMPOSE exec bigtable cbt
 }
 
 fn_explore_address() {
     echo "todo"
+    # $COMPOSE exec bigtable cbt
 }
 
 fn_main "$@"

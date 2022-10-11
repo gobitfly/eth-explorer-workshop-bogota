@@ -1,0 +1,110 @@
+version: '3'
+services:
+  ################ explorer
+  exporter:
+    image: guybrush/workshop-bogota
+    restart: unless-stopped
+    command: 
+      - explorer
+      - -config=/v/config.yml
+    volumes:
+      - ./:/v
+      - ./docker-volumes/explorer:/data
+    environment:
+      - INDEXER_ENABLED=true
+      - INDEXER_NODE_HOST=$NODES_IP
+      - INDEXER_NODE_PORT=4000
+      - BIGTABLE_EMULATOR_HOST=bigtable:9000
+      - ETH1_ERIGON_ENDPOINT=http://$NODES_IP:8545
+      - ETH1_GETH_ENDPOINT=http://$NODES_IP:8545
+  eth1indexer:
+    image: guybrush/workshop-bogota
+    restart: unless-stopped
+    command: 
+      - /v/_gitignore/eth2-beaconchain-explorer/bin/eth1indexer
+      - -bigtable.project=explorer
+      - -bigtable.instance=bigtable:9000
+      - -network=sepolia
+      - -erigon=ws://$NODES_IP:8545
+      - -data.concurrency=2
+      - -data.offset=100
+      - -data.start=0
+      - -data.end=0
+      - -blocks.concurrency=2
+      - -blocks.offset=100
+      - -blocks.start=0
+      - -blocks.end=0
+      - -balances.enabled
+      - -balances.batch=100
+    volumes:
+      - ./:/v
+      - ./docker-volumes/explorer:/data
+    environment:
+      - BIGTABLE_EMULATOR_HOST=bigtable:9000
+  statistics:
+    image: guybrush/workshop-bogota
+    command: 
+      - statistics
+      - -config=/v/config.yml
+    volumes:
+      - ./:/v
+      - ./docker-volumes/explorer:/data
+    environment:
+      - INDEXER_ENABLED=false
+  frontend-updater:
+    image: guybrush/workshop-bogota
+    command: 
+      - frontend-data-updater
+      - -config=/v/config.yml
+    environment:
+      - FRONTEND_ENABLED=true
+      - BIGTABLE_EMULATOR_HOST=bigtable:9000
+    volumes:
+      - ./:/v
+      - ./docker-volumes/explorer:/data
+  frontend:
+    image: guybrush/workshop-bogota
+    restart: unless-stopped
+    command: 
+      - explorer
+      - -config=/v/config.yml
+    environment:
+      - FRONTEND_ENABLED=true
+      - BIGTABLE_EMULATOR_HOST=bigtable:9000
+      - ETH1_ERIGON_ENDPOINT=http://$NODES_IP:8545
+      - ETH1_GETH_ENDPOINT=http://$NODES_IP:8545
+    volumes:
+      - ./:/v
+      - ./docker-volumes/explorer:/data
+    ports:
+      - 8080:8080
+  ################ dbs
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    volumes:
+      - ./docker-volumes/redis:/data
+  postgres:
+    image: postgres:14
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=db
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - ./docker-volumes/postgres:/var/lib/postgresql/data
+      - ./tables.sql:/docker-entrypoint-initdb.d/init.sql
+  bigtable:
+    image: guybrush/workshop-bogota
+    restart: unless-stopped
+    command:
+      - little_bigtable
+      - -db-file=/data/db
+      - -host=0.0.0.0
+      - -port=9000
+    volumes:
+      - ./init-bigtable.sh:/init-bigtable.sh
+      - ./docker-volumes/bigtable:/data
+    environment:
+      - BIGTABLE_EMULATOR_HOST=bigtable:9000

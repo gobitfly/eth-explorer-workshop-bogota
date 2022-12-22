@@ -16,8 +16,8 @@ bigtable:
   project: explorer
   instance: bigtable:9000
 lastAttestationCachePath: "/data/lastAttestationCache"
-eth1ErigonEndpoint: 'http://34.176.254.248:8545'
-eth1GethEndpoint: 'http://34.176.254.248:8545'
+eth1ErigonEndpoint: 'http://erigon:8545'
+eth1GethEndpoint: 'http://erigon:8545'
 redisCacheEndpoint: 'redis:6379'
 tieredCacheProvider: 'redis'
 #tieredCacheProvider: 'bigtable'
@@ -55,9 +55,9 @@ indexer:
   # fullIndexOnStartup: false # Perform a one time full db index on startup
   # indexMissingEpochsOnStartup: true # Check for missing epochs and export them after startup
   node:
-    host: 34.176.254.248
+    host: lighthouse
     port: '4000'
     type: lighthouse
-  eth1Endpoint: "http://34.176.254.248:8545"
+  eth1Endpoint: "http://erigon:8545"
   eth1DepositContractAddress: '0x7f02C3E3c98b133055B8B348B2Ac625669Ed295D'
   eth1DepositContractFirstBlock: 1273020

@@ -6,6 +6,7 @@ BIGTABLE_EMULATOR_HOST="bigtable:9000"
 INSTANCE="bigtable:9000"
 PROJECT="explorer"
 
+
 cbt -project $PROJECT -instance $INSTANCE createtable beaconchain
 cbt -project $PROJECT -instance $INSTANCE createtable blocks
 cbt -project $PROJECT -instance $INSTANCE createtable cache
@@ -32,3 +33,5 @@ cbt -project $PROJECT -instance $INSTANCE createfamily metadata erc721
 
 cbt -project $PROJECT -instance $INSTANCE createfamily metadata_updates blocks
 cbt -project $PROJECT -instance $INSTANCE createfamily metadata_updates f
+
+#little_bigtable

@@ -2,7 +2,12 @@ version: '3'
 services:
   ################ explorer
   exporter:
-    image: guybrush/explorer-workshop-bogota
+    image: gobitfly/eth2-beaconchain-explorer
+    depends_on:
+      - postgres
+      - bigtable
+      - erigon
+      - lighthouse
     restart: unless-stopped
     command: 
       - explorer
@@ -12,20 +17,22 @@ services:
       - ./docker-volumes/explorer:/data
     environment:
       - INDEXER_ENABLED=true
-      - INDEXER_NODE_HOST=$NODES_IP
+      - INDEXER_NODE_HOST=lighthouse
       - INDEXER_NODE_PORT=4000
       - BIGTABLE_EMULATOR_HOST=bigtable:9000
-      - ETH1_ERIGON_ENDPOINT=http://$NODES_IP:8545
-      - ETH1_GETH_ENDPOINT=http://$NODES_IP:8545
+      - ETH1_ERIGON_ENDPOINT=http://erigon:8545
+      - ETH1_GETH_ENDPOINT=http://erigon:8545
   eth1indexer:
-    image: guybrush/explorer-workshop-bogota
+    image: gobitfly/eth2-beaconchain-explorer
+    depends_on:
+      - bigtable
     restart: unless-stopped
     command: 
       - eth1indexer
       - -bigtable.project=explorer
       - -bigtable.instance=bigtable:9000
       - -network=sepolia
-      - -erigon=ws://$NODES_IP:8545
+      - -erigon=ws://erigon:8545
       - -data.concurrency=2
       - -data.offset=100
       - -data.start=0
@@ -42,7 +49,10 @@ services:
     environment:
       - BIGTABLE_EMULATOR_HOST=bigtable:9000
   statistics:
-    image: guybrush/explorer-workshop-bogota
+    image: gobitfly/eth2-beaconchain-explorer
+    depends_on:
+      - postgres
+      - bigtable
     command: 
       - statistics
       - -config=/v/config.yml
@@ -52,7 +62,11 @@ services:
     environment:
       - INDEXER_ENABLED=false
   frontend-updater:
-    image: guybrush/explorer-workshop-bogota
+    image: gobitfly/eth2-beaconchain-explorer
+    depends_on:
+      - postgres
+      - bigtable
+      - redis
     command: 
       - frontend-data-updater
       - -config=/v/config.yml
@@ -63,7 +77,11 @@ services:
       - ./:/v
       - ./docker-volumes/explorer:/data
   frontend:
-    image: guybrush/explorer-workshop-bogota
+    image: gobitfly/eth2-beaconchain-explorer
+    depends_on:
+      - postgres
+      - bigtable
+      - redis
     restart: unless-stopped
     command: 
       - explorer
@@ -71,8 +89,8 @@ services:
     environment:
       - FRONTEND_ENABLED=true
       - BIGTABLE_EMULATOR_HOST=bigtable:9000
-      - ETH1_ERIGON_ENDPOINT=http://$NODES_IP:8545
-      - ETH1_GETH_ENDPOINT=http://$NODES_IP:8545
+      - ETH1_ERIGON_ENDPOINT=http://erigon:8545
+      - ETH1_GETH_ENDPOINT=http://erigon:8545
     volumes:
       - ./:/v
       - ./docker-volumes/explorer:/data
@@ -96,7 +114,7 @@ services:
       - ./docker-volumes/postgres:/var/lib/postgresql/data
       - ./tables.sql:/docker-entrypoint-initdb.d/init.sql
   bigtable:
-    image: guybrush/explorer-workshop-bogota
+    build: ./
     restart: unless-stopped
     command:
       - little_bigtable
@@ -110,3 +128,51 @@ services:
       - ./eth1.proto:/eth1.proto
     environment:
       - BIGTABLE_EMULATOR_HOST=bigtable:9000
+  ################ nodes
+  erigon:
+    image: thorax/erigon:v2.28.1
+    restart: unless-stopped
+    command:
+      - erigon
+      - --nat=any
+      - --ws
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.api=eth,erigon,engine,debug,trace
+      - --http.vhosts=*
+      - --chain=sepolia
+      - --datadir=/data
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.vhosts=*
+      - --authrpc.jwtsecret=/secrets/el-jwtsecret
+      - --maxpeers=8
+    volumes:
+      - ./docker-volumes/erigon:/data
+      - ./docker-volumes/secrets:/secrets
+    stop_signal: SIGINT
+    stop_grace_period: 3m
+    ports:
+      - 30303:30303/udp
+  lighthouse:
+    image: sigp/lighthouse:v3.2.1-modern
+    restart: unless-stopped
+    command:
+      - lighthouse
+      - --datadir=/data
+      - --network=sepolia
+      - beacon_node
+      - --target-peers=8
+      - --slots-per-restore-point=64
+      - --port=13000
+      - --metrics-port=9091
+      - --http
+      - --http-allow-origin=*
+      - --http-address=0.0.0.0
+      - --http-port=4000
+      - --checkpoint-sync-url=https://sepolia.beaconstate.info/
+      - --execution-endpoints=http://erigon:8551
+      - --execution-jwt=/secrets/el-jwtsecret
+    volumes:
+      - ./docker-volumes/lighthouse:/data
+      - ./docker-volumes/secrets:/secrets

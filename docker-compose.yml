@@ -20,8 +20,8 @@ services:
       - INDEXER_NODE_HOST=lighthouse
       - INDEXER_NODE_PORT=4000
       - BIGTABLE_EMULATOR_HOST=bigtable:9000
-      - ETH1_ERIGON_ENDPOINT=http://erigon:8545
-      - ETH1_GETH_ENDPOINT=http://erigon:8545
+      - ETH1_ERIGON_ENDPOINT=http://ergion:8545
+      - ETH1_GETH_ENDPOINT=http://ergion:8545
   eth1indexer:
     image: gobitfly/eth2-beaconchain-explorer
     depends_on:
@@ -89,8 +89,8 @@ services:
     environment:
       - FRONTEND_ENABLED=true
       - BIGTABLE_EMULATOR_HOST=bigtable:9000
-      - ETH1_ERIGON_ENDPOINT=http://erigon:8545
-      - ETH1_GETH_ENDPOINT=http://erigon:8545
+      - ETH1_ERIGON_ENDPOINT=http://ergion:8545
+      - ETH1_GETH_ENDPOINT=http://ergion:8545
     volumes:
       - ./:/v
       - ./docker-volumes/explorer:/data
